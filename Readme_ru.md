@@ -174,7 +174,7 @@ func main() {
 package main
 
 import (
-    "clog"
+    "github.com/blues-alex/clog"
 )
 
 func main() {
