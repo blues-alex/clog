@@ -142,7 +142,7 @@ This example demonstrates how to use the clog package by enabling all logging le
 package main
 
 import (
-    "clog"
+    "github.com/blues-alex/clog"
 )
 
 func main() {
