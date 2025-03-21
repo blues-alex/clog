@@ -19,6 +19,16 @@ var (
 	HiRed    = color.New(color.FgHiRed).SprintfFunc()
 	White    = color.New(color.FgWhite).SprintfFunc()
 
+	Errorf = fmt.Errorf
+
+	Print   = fmt.Print
+	Printf  = fmt.Printf
+	Println = fmt.Println
+
+	Sprint   = fmt.Sprint
+	Sprintf  = fmt.Sprintf
+	Sprintln = fmt.Sprintln
+
 	EnableError   bool = true
 	EnableWarning bool = true
 	EnableInfo    bool = false
