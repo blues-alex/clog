@@ -3,6 +3,7 @@ package clog
 import (
 	"fmt"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
@@ -35,7 +36,8 @@ var (
 	EnableSuccess bool = false
 	EnableDebug   bool = false
 
-	logFile *os.File // Файл для логирования
+	logFile  *os.File
+	logMutex sync.Mutex
 )
 
 // Сеттеры для уровней логирования (остаются без изменений)
@@ -78,12 +80,15 @@ func SetDisableAll() {
 // Функция для установки файла логирования
 func SetLogFile(filename string) error {
 	if filename == "" {
-		// Если имя пустое, закрываем текущий файл и возвращаем к стандартному выводу
 		if logFile != nil {
 			logFile.Close()
 			logFile = nil
 		}
 		return nil
+	}
+
+	if logFile != nil {
+		logFile.Close()
 	}
 
 	var err error
@@ -97,7 +102,7 @@ func SetLogFile(filename string) error {
 // Вспомогательная функция для форматирования сообщения из ...any
 func formatMessage(s ...any) string {
 	sStr := fmt.Sprint(s...)
-	if sStr[0] == '[' && sStr[len(sStr)-1] == ']' {
+	if len(sStr) >= 2 && sStr[0] == '[' && sStr[len(sStr)-1] == ']' {
 		return sStr[1 : len(sStr)-1]
 	}
 	return sStr
@@ -105,6 +110,8 @@ func formatMessage(s ...any) string {
 
 // Вспомогательная функция для логирования
 func loggerFunc(consoleLine, fileLine string) {
+	logMutex.Lock()
+	defer logMutex.Unlock()
 	fmt.Fprint(os.Stdout, consoleLine)
 	if logFile != nil {
 		fmt.Fprint(logFile, fileLine)

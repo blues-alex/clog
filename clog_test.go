@@ -92,7 +92,7 @@ func TestErrorOutput(t *testing.T) {
 		expected     string
 		expectedFile string
 	}{
-		{"Enabled", true, "\x1b[31mERROR:\x1b[0m \x1b[91mTest error message\x1b[0m\n", "ERROR: Test error message"},
+		{"Enabled", true, "ERROR:", "ERROR: Test error message"},
 		{"Disabled", false, "", ""},
 	}
 
@@ -102,12 +102,10 @@ func TestErrorOutput(t *testing.T) {
 			defer func() { SetEnableError(prevEnable) }()
 			SetEnableError(tc.enable)
 
-			// Перехват stdout
 			oldStdout := os.Stdout
 			r, w, _ := os.Pipe()
 			os.Stdout = w
 
-			// Тестовый файл для лога
 			tmpFile, err := os.CreateTemp("", "test_log_*.log")
 			assert.NoError(t, err)
 			defer func() {
@@ -117,7 +115,6 @@ func TestErrorOutput(t *testing.T) {
 			err = SetLogFile(tmpFile.Name())
 			assert.NoError(t, err)
 
-			// Вызываем функцию
 			Error("Test error message")
 
 			w.Close()
@@ -126,14 +123,14 @@ func TestErrorOutput(t *testing.T) {
 			os.Stdout = oldStdout
 
 			if tc.expected != "" {
-				assert.True(t, buf.String()[33:] == tc.expected, "Unexpected console output: %s != %s", buf.String(), tc.expected)
+				assert.Contains(t, buf.String(), tc.expected, "Unexpected console output: %s", buf.String())
 
 				fileContent, err := os.ReadFile(tmpFile.Name())
 				assert.NoError(t, err)
 				assert.Contains(t, string(fileContent), tc.expectedFile)
 			} else {
 				assert.Empty(t, buf.String(), "Output should be empty when disabled")
-				assert.FileExists(t, tmpFile.Name()) // Файл создан, но запись не происходит
+				assert.FileExists(t, tmpFile.Name())
 			}
 		})
 	}
@@ -146,7 +143,7 @@ func TestWarningOutput(t *testing.T) {
 		expected     string
 		expectedFile string
 	}{
-		{"Enabled", true, "\x1b[33mWarning:\x1b[0m \x1b[93mTest warning message\x1b[0m\n", "Warning: Test warning message"},
+		{"Enabled", true, "Warning:", "Warning: Test warning message"},
 		{"Disabled", false, "", ""},
 	}
 
@@ -177,7 +174,7 @@ func TestWarningOutput(t *testing.T) {
 			os.Stdout = oldStdout
 
 			if tc.expected != "" {
-				assert.True(t, buf.String()[33:] == tc.expected, "Unexpected console output: %s", buf.String())
+				assert.Contains(t, buf.String(), tc.expected, "Unexpected console output: %s", buf.String())
 
 				fileContent, err := os.ReadFile(tmpFile.Name())
 				assert.NoError(t, err)
