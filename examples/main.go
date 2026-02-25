@@ -36,4 +36,38 @@ func main() {
 	fmt.Println("Log file contents:")
 	fmt.Println(string(content))
 	os.Remove("demo.log")
+
+	fmt.Println("\n=== Color Print wrappers ===")
+	clog.PrintRed("This is red text\n")
+	clog.PrintfRed("This is %s text\n", "red")
+	clog.PrintlnRed("This is red line")
+
+	clog.PrintHiRed("This is hi-red text\n")
+	clog.PrintlnHiRed("This is hi-red line")
+
+	clog.PrintYellow("This is yellow text\n")
+	clog.PrintlnYellow("This is yellow line")
+
+	clog.PrintHiYellow("This is hi-yellow text\n")
+	clog.PrintlnHiYellow("This is hi-yellow line")
+
+	clog.PrintGreen("This is green text\n")
+	clog.PrintlnGreen("This is green line")
+
+	clog.PrintHiGreen("This is hi-green text\n")
+	clog.PrintlnHiGreen("This is hi-green line")
+
+	clog.PrintBlue("This is blue text\n")
+	clog.PrintlnBlue("This is blue line")
+
+	clog.PrintCyan("This is cyan text\n")
+	clog.PrintlnCyan("This is cyan line")
+
+	clog.PrintWhite("This is white text\n")
+	clog.PrintlnWhite("This is white line")
+
+	fmt.Println("\n=== Sprint wrappers ===")
+	s := clog.SprintfRed("Value: %d", 42)
+	fmt.Print(s)
+	fmt.Println()
 }
