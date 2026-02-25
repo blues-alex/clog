@@ -66,8 +66,16 @@ func main() {
 	clog.PrintWhite("This is white text\n")
 	clog.PrintlnWhite("This is white line")
 
-	fmt.Println("\n=== Sprint wrappers ===")
-	s := clog.SprintfRed("Value: %d", 42)
+	fmt.Println("\n=== Color functions (sprint) ===")
+	s := clog.SprintfRed("Value: %d\n", 42)
 	fmt.Print(s)
-	fmt.Println()
+
+	s = clog.SprintfHiYellow("Warning: %s\n", "check this")
+	fmt.Print(s)
+
+	s = clog.SprintfGreen("Success: %s\n", "done")
+	fmt.Print(s)
+
+	s = clog.SprintfBlue("Info: %d items\n", 10)
+	fmt.Print(s)
 }

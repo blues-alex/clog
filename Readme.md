@@ -109,3 +109,19 @@ go run ./examples/
 ### Цветовые функции
 
 - `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
+
+### Цветной вывод (Print wrappers)
+
+Для каждого цвета доступны функции:
+- `PrintX(a ...any)`, `PrintlnX(a ...any)`, `PrintfX(format, a ...any)`
+- `SprintX(a ...any)`, `SprintlnX(a ...any)`, `SprintfX(format, a ...any)`
+
+Где X: `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
+
+Пример:
+```go
+clog.PrintRed("Ошибка: ")
+clog.PrintfGreen("Значение: %d\n", 42)
+clog.PrintlnBlue("Информация")
+msg := clog.SprintfHiYellow("Форматированное: %s", "значение")
+```
