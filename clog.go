@@ -135,7 +135,14 @@ func trimLogFile() {
 
 	trimSize := int64(float64(len(content)) * float64(LogFileTrimPercent) / 100.0)
 	if trimSize < int64(len(content))/2 {
-		newContent := content[trimSize:]
+		startIdx := trimSize
+		for startIdx < int64(len(content)) && content[startIdx] != '\n' {
+			startIdx++
+		}
+		if startIdx < int64(len(content)) {
+			startIdx++
+		}
+		newContent := content[startIdx:]
 		err := os.WriteFile(logFilePath, newContent, 0644)
 		if err == nil {
 			logFile.Seek(0, 2)
