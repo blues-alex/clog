@@ -1,6 +1,16 @@
 # clog
 
-Цветной логгер для Go с поддержкой нескольких уровней логирования и записи в файл.
+Цветной логгер для Go с поддержкой нескольких уровней логирования, записи в файл, ротацией и прогресс-барами.
+
+## Возможности
+
+- 5 уровней логирования: Error, Warning, Info, Success, Debug
+- Цветной вывод в консоль
+- Запись в файл (дублирование)
+- Ротация логов по размеру с построчным обрезанием
+- Progress wrappers для прогресс-баров
+- Потокобезопасность (mutex)
+- 9 цветов: Red, HiRed, Yellow, HiYellow, Green, HiGreen, Blue, Cyan, White
 
 ## Установка
 
@@ -11,8 +21,6 @@ go get github.com/blues-alex/clog
 ## Быстрый старт
 
 ```go
-package main
-
 import "github.com/blues-alex/clog"
 
 func main() {
@@ -27,8 +35,8 @@ func main() {
 
 ## Уровни логирования
 
-| Функция | Описание | Цвет по умолчанию |
-|---------|----------|-------------------|
+| Функция | Описание | Цвет |
+|---------|----------|------|
 | `Error` | Ошибки | Красный |
 | `Warning` | Предупреждения | Желтый |
 | `Info` | Информация | Белый |
@@ -40,37 +48,121 @@ func main() {
 ## Управление уровнями
 
 ```go
-// Включить/выключить отдельный уровень
+// Отдельные сеттеры
 clog.SetEnableError(true)
 clog.SetEnableWarning(false)
 clog.SetEnableInfo(true)
 clog.SetEnableSuccess(true)
 clog.SetEnableDebug(false)
 
-// Включить все уровни
-clog.SetEnableAll()
-
-// Выключить все уровни
-clog.SetDisableAll()
+// Все сразу
+clog.SetEnableAll()   // включить все
+clog.SetDisableAll()  // выключить все
 ```
 
 ## Запись в файл
 
 ```go
-// Запись логов в файл (дублируется в консоль)
+// Запись в файл (дублируется в консоль)
 clog.SetLogFile("app.log")
+clog.Error("запишется в файл и консоль")
 
-// Вернуться к выводу только в консоль
+// Закрыть файл (только консоль)
 clog.SetLogFile("")
+```
+
+## Ротация логов
+
+При достижении максимального размера файла, начало файла обрезается построчно:
+
+```go
+// Максимальный размер файла (0 - выключено)
+clog.SetMaxLogFileSize(10 * 1024 * 1024)  // 10 MB
+
+// Процент от начала файла для удаления (по умолчанию 20%)
+clog.SetLogFileTrimPercent(30)
+
+// После этого установить файл
+clog.SetLogFile("app.log")
+```
+
+## Цветной вывод
+
+### Цветовые функции
+
+```go
+msg := clog.Red("текст")
+msg := clog.Green("текст")
+// и др.: HiRed, Yellow, HiYellow, HiGreen, Blue, Cyan, White
+```
+
+### Print-обёртки
+
+Для каждого цвета доступны 6 функций:
+
+```go
+// Print - вывод без переноса строки
+clog.PrintRed("текст")
+
+// Printf - форматированный вывод
+clog.PrintfRed("значение: %d", 42)
+
+// Println - вывод с переносом строки
+clog.PrintlnRed("текст")
+
+// Sprint - вернуть строку
+msg := clog.SprintRed("текст")
+
+// Sprintf - вернуть отформатированную строку
+msg := clog.SprintfRed("значение: %d", 42)
+
+// Sprintln - вернуть строку с переносом
+msg := clog.SprintlnRed("текст")
+```
+
+Цвета: `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
+
+## Progress (прогресс-бар)
+
+Wrapper'ы с методами для вывода на одну строку (с `\r`):
+
+```go
+// Доступные wrapper'ы
+clog.ErrorWrapper
+clog.WarningWrapper
+clog.InfoWrapper
+clog.SuccessWrapper
+clog.DebugWrapper
+
+// Методы
+clog.DebugWrapper.Progress("Step ", i)
+clog.WarningWrapper.Progressf("Progress: %d%%", percent)
+clog.InfoWrapper.Progressln("done")
+
+// Обычные методы (без \r)
+clog.DebugWrapper.Print("text")
+clog.DebugWrapper.Printf("format: %d", 42)
+clog.DebugWrapper.Println("text")
+
+// Пример прогресс-бара
+for i := 0; i <= 100; i += 10 {
+    clog.InfoWrapper.Progressf("Загрузка: %d%%", i)
+    time.Sleep(100 * time.Millisecond)
+}
+fmt.Println() // перенос строки после завершения
 ```
 
 ## Потокобезопасность
 
-Пакет безопасен для использования в горутинах — использует мьютекс для записи.
+Пакет безопасен для использования в горутинах — использует mutex для записи.
+
+## Тесты
+
+```bash
+go test ./...
+```
 
 ## Примеры
-
-См. `examples/main.go` для полного демо:
 
 ```bash
 go run ./examples/
@@ -81,77 +173,25 @@ go run ./examples/
 ### Функции логирования
 
 - `Err(err error)` — логировать ошибку (если не nil)
-- `Error(s ...any)` — логировать ошибку
-- `Warning(s ...any)` — логировать предупреждение
-- `Info(s ...any)` — логировать информацию
-- `Success(s ...any)` — логировать успех
-- `Debug(s ...any)` — логировать отладку
+- `Error(s ...any)`, `Warning(s ...any)`, `Info(s ...any)`, `Success(s ...any)`, `Debug(s ...any)`
 
 ### Сеттеры
 
-- `SetEnableError(bool)`
-- `SetEnableWarning(bool)`
-- `SetEnableInfo(bool)`
-- `SetEnableSuccess(bool)`
-- `SetEnableDebug(bool)`
-- `SetEnableAll()`
-- `SetDisableAll()`
+- `SetEnableError(bool)`, `SetEnableWarning(bool)`, `SetEnableInfo(bool)`, `SetEnableSuccess(bool)`, `SetEnableDebug(bool)`
+- `SetEnableAll()`, `SetDisableAll()`
 - `SetLogFile(filename string) error`
-- `SetMaxLogFileSize(size int64)`
-- `SetLogFileTrimPercent(percent int)`
+- `SetMaxLogFileSize(size int64)`, `SetLogFileTrimPercent(percent int)`
 
-### Экспортированные переменные-флаги
+### Флаги (экспортированные переменные)
 
-- `EnableError`
-- `EnableWarning`
-- `EnableInfo`
-- `EnableSuccess`
-- `EnableDebug`
+- `EnableError`, `EnableWarning`, `EnableInfo`, `EnableSuccess`, `EnableDebug`
 
 ### Цветовые функции
 
 - `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
 
-### Цветной вывод (Print wrappers)
+### Progress wrappers
 
-Для каждого цвета доступны функции:
-- `PrintX(a ...any)`, `PrintlnX(a ...any)`, `PrintfX(format, a ...any)`
-- `SprintX(a ...any)`, `SprintlnX(a ...any)`, `SprintfX(format, a ...any)`
+- `ErrorWrapper`, `WarningWrapper`, `InfoWrapper`, `SuccessWrapper`, `DebugWrapper`
 
-Где X: `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
-
-Пример:
-```go
-clog.PrintRed("Ошибка: ")
-clog.PrintfGreen("Значение: %d\n", 42)
-clog.PrintlnBlue("Информация")
-msg := clog.SprintfHiYellow("Форматированное: %s", "значение")
-```
-
-## Ротация логов
-
-При достижении максимального размера файла, начало файла обрезается:
-
-```go
-clog.SetMaxLogFileSize(10 * 1024 * 1024) // 10 MB (по умолчанию 0 - без ротации)
-clog.SetLogFileTrimPercent(20)            // Удалять 20% от начала (по умолчанию 20%)
-clog.SetLogFile("app.log")
-```
-
-## Progress (прогресс-бар)
-
-Обёртки с методом `.Progress()` для вывода на одну строку (с `\r`):
-
-```go
-clog.DebugWrapper.Progress("Progress: ", 50, "%")
-clog.WarningWrapper.Progressf("Step %d of %d", current, total)
-```
-
-Доступные wrapper'ы:
-- `clog.ErrorWrapper`
-- `clog.WarningWrapper`
-- `clog.InfoWrapper`
-- `clog.SuccessWrapper`
-- `clog.DebugWrapper`
-
-Методы: `Print()`, `Printf()`, `Println()`, `Progress()`, `Progressf()`
+Методы: `Print()`, `Printf()`, `Println()`, `Progress()`, `Progressf()`, `Progressln()`
