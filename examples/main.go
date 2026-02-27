@@ -85,9 +85,9 @@ func main() {
 	fmt.Println("\n=== Progress (\\r) ===")
 	clog.SetEnableAll()
 
-	for i := 0; i <= 100; i += 20 {
+	for i := 0; i <= 1000; i += 20 {
 		clog.DebugWrapper.Progressf("Progress: %d%%", i)
-		time.Sleep(50 * time.Millisecond)
+		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Println()
 
