@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/blues-alex/clog"
 )
@@ -66,6 +67,8 @@ func main() {
 	clog.PrintWhite("This is white text\n")
 	clog.PrintlnWhite("This is white line")
 
+	clog.PrintfYellow("New Error: %#v\n", clog.Errorf("New error"))
+
 	fmt.Println("\n=== Color functions (sprint) ===")
 	s := clog.SprintfRed("Value: %d\n", 42)
 	fmt.Print(s)
@@ -78,4 +81,35 @@ func main() {
 
 	s = clog.SprintfBlue("Info: %d items\n", 10)
 	fmt.Print(s)
+
+	fmt.Println("\n=== Progress (\\r) ===")
+	clog.SetEnableAll()
+
+	for i := 0; i <= 100; i += 20 {
+		clog.DebugWrapper.Progressf("Progress: %d%%", i)
+		time.Sleep(50 * time.Millisecond)
+	}
+	fmt.Println()
+
+	for i := 0; i <= 100; i += 20 {
+		clog.WarningWrapper.Progress("Step ", i, "/5")
+		time.Sleep(50 * time.Millisecond)
+	}
+	fmt.Println()
+
+	fmt.Println("\n=== Log rotation ===")
+	clog.SetMaxLogFileSize(1024)   // 1KB max
+	clog.SetLogFileTrimPercent(30) // Trim 30%
+	clog.SetLogFile("rotation.log")
+	clog.SetEnableAll()
+
+	for i := 0; i < 50; i++ {
+		clog.Info("Log entry number ", i)
+	}
+	clog.SetLogFile("")
+
+	content, _ = os.ReadFile("rotation.log")
+	fmt.Println("Log after rotation (last entries):")
+	fmt.Println(string(content))
+	os.Remove("rotation.log")
 }

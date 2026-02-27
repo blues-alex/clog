@@ -97,6 +97,8 @@ go run ./examples/
 - `SetEnableAll()`
 - `SetDisableAll()`
 - `SetLogFile(filename string) error`
+- `SetMaxLogFileSize(size int64)`
+- `SetLogFileTrimPercent(percent int)`
 
 ### Экспортированные переменные-флаги
 
@@ -125,3 +127,31 @@ clog.PrintfGreen("Значение: %d\n", 42)
 clog.PrintlnBlue("Информация")
 msg := clog.SprintfHiYellow("Форматированное: %s", "значение")
 ```
+
+## Ротация логов
+
+При достижении максимального размера файла, начало файла обрезается:
+
+```go
+clog.SetMaxLogFileSize(10 * 1024 * 1024) // 10 MB (по умолчанию 0 - без ротации)
+clog.SetLogFileTrimPercent(20)            // Удалять 20% от начала (по умолчанию 20%)
+clog.SetLogFile("app.log")
+```
+
+## Progress (прогресс-бар)
+
+Обёртки с методом `.Progress()` для вывода на одну строку (с `\r`):
+
+```go
+clog.DebugWrapper.Progress("Progress: ", 50, "%")
+clog.WarningWrapper.Progressf("Step %d of %d", current, total)
+```
+
+Доступные wrapper'ы:
+- `clog.ErrorWrapper`
+- `clog.WarningWrapper`
+- `clog.InfoWrapper`
+- `clog.SuccessWrapper`
+- `clog.DebugWrapper`
+
+Методы: `Print()`, `Printf()`, `Println()`, `Progress()`, `Progressf()`

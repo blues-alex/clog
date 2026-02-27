@@ -36,8 +36,11 @@ var (
 	EnableSuccess bool = false
 	EnableDebug   bool = false
 
-	logFile  *os.File
-	logMutex sync.Mutex
+	logFile            *os.File
+	logMutex           sync.Mutex
+	logFilePath        string
+	MaxLogFileSize     int64 = 0
+	LogFileTrimPercent int   = 20
 )
 
 // Сеттеры для уровней логирования (остаются без изменений)
@@ -77,6 +80,20 @@ func SetDisableAll() {
 	EnableDebug = false
 }
 
+func SetMaxLogFileSize(size int64) {
+	MaxLogFileSize = size
+}
+
+func SetLogFileTrimPercent(percent int) {
+	if percent < 5 {
+		percent = 5
+	}
+	if percent > 50 {
+		percent = 50
+	}
+	LogFileTrimPercent = percent
+}
+
 // Функция для установки файла логирования
 func SetLogFile(filename string) error {
 	if filename == "" {
@@ -84,6 +101,7 @@ func SetLogFile(filename string) error {
 			logFile.Close()
 			logFile = nil
 		}
+		logFilePath = ""
 		return nil
 	}
 
@@ -96,7 +114,33 @@ func SetLogFile(filename string) error {
 	if err != nil {
 		return err
 	}
+	logFilePath = filename
 	return nil
+}
+
+func trimLogFile() {
+	if logFile == nil || logFilePath == "" || MaxLogFileSize <= 0 {
+		return
+	}
+
+	stat, err := logFile.Stat()
+	if err != nil || stat.Size() < MaxLogFileSize {
+		return
+	}
+
+	content, err := os.ReadFile(logFilePath)
+	if err != nil {
+		return
+	}
+
+	trimSize := int64(float64(len(content)) * float64(LogFileTrimPercent) / 100.0)
+	if trimSize < int64(len(content))/2 {
+		newContent := content[trimSize:]
+		err := os.WriteFile(logFilePath, newContent, 0644)
+		if err == nil {
+			logFile.Seek(0, 2)
+		}
+	}
 }
 
 // Вспомогательная функция для форматирования сообщения из ...any
@@ -115,6 +159,7 @@ func loggerFunc(consoleLine, fileLine string) {
 	fmt.Fprint(os.Stdout, consoleLine)
 	if logFile != nil {
 		fmt.Fprint(logFile, fileLine)
+		trimLogFile()
 	}
 }
 
