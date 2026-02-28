@@ -6,14 +6,12 @@ import (
 	"strings"
 )
 
-type LogFunc func(s ...any)
-
 type LogFuncWrapper struct {
-	fn   LogFunc
-	last string
+	fn      func(s ...any)
+	colorFn func(format string, a ...any) string
+	last    string
 }
 
-var clearLine = "\033[2K"
 var carriageReturn = "\r"
 
 func (w *LogFuncWrapper) Print(a ...any) {
@@ -21,7 +19,7 @@ func (w *LogFuncWrapper) Print(a ...any) {
 }
 
 func (w *LogFuncWrapper) Printf(format string, a ...any) {
-	w.clearAndPrint(Sprintf(format, a...))
+	w.clearAndPrint(fmt.Sprintf(format, a...))
 }
 
 func (w *LogFuncWrapper) Println(a ...any) {
@@ -33,16 +31,20 @@ func (w *LogFuncWrapper) clearAndPrint(msg string) {
 		spaces := strings.Repeat(" ", len(w.last))
 		fmt.Fprint(os.Stdout, carriageReturn+spaces+carriageReturn)
 	}
+	coloredMsg := msg
+	if w.colorFn != nil {
+		coloredMsg = w.colorFn("%s", msg)
+	}
 	w.last = msg
-	fmt.Fprint(os.Stdout, msg)
+	fmt.Fprint(os.Stdout, coloredMsg)
 }
 
 var (
-	ErrorWrapper   = &LogFuncWrapper{fn: func(s ...any) { Error(s...) }}
-	WarningWrapper = &LogFuncWrapper{fn: func(s ...any) { Warning(s...) }}
-	InfoWrapper    = &LogFuncWrapper{fn: func(s ...any) { Info(s...) }}
-	SuccessWrapper = &LogFuncWrapper{fn: func(s ...any) { Success(s...) }}
-	DebugWrapper   = &LogFuncWrapper{fn: func(s ...any) { Debug(s...) }}
+	ErrorWrapper   = &LogFuncWrapper{fn: func(s ...any) { Error(s...) }, colorFn: Red}
+	WarningWrapper = &LogFuncWrapper{fn: func(s ...any) { Warning(s...) }, colorFn: Yellow}
+	InfoWrapper    = &LogFuncWrapper{fn: func(s ...any) { Info(s...) }, colorFn: nil}
+	SuccessWrapper = &LogFuncWrapper{fn: func(s ...any) { Success(s...) }, colorFn: Green}
+	DebugWrapper   = &LogFuncWrapper{fn: func(s ...any) { Debug(s...) }, colorFn: Cyan}
 )
 
 func (w *LogFuncWrapper) Progress(a ...any) {
@@ -50,7 +52,8 @@ func (w *LogFuncWrapper) Progress(a ...any) {
 }
 
 func (w *LogFuncWrapper) Progressf(format string, a ...any) {
-	w.clearAndPrint(Sprintf(format, a...))
+	s := fmt.Sprintf(format, a...)
+	w.clearAndPrint(s)
 }
 
 func (w *LogFuncWrapper) Progressln(a ...any) {
