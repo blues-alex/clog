@@ -1,3 +1,5 @@
+// Package clog provides a colored logger for Go with multiple log levels,
+// file logging with rotation, and progress bar support.
 package clog
 
 import (
@@ -9,6 +11,8 @@ import (
 	"github.com/fatih/color"
 )
 
+// Color functions for console output.
+// Each function returns a colored string using ANSI escape codes.
 var (
 	Blue     = color.New(color.FgBlue).SprintfFunc()
 	Cyan     = color.New(color.FgCyan).SprintfFunc()
@@ -20,6 +24,7 @@ var (
 	HiRed    = color.New(color.FgHiRed).SprintfFunc()
 	White    = color.New(color.FgWhite).SprintfFunc()
 
+	// Re-export fmt functions for convenience
 	Errorf = fmt.Errorf
 
 	Print   = fmt.Print
@@ -30,40 +35,48 @@ var (
 	Sprintf  = fmt.Sprintf
 	Sprintln = fmt.Sprintln
 
+	// Flags to enable/disable log levels.
+	// By default, Error and Warning are enabled.
 	EnableError   bool = true
 	EnableWarning bool = true
 	EnableInfo    bool = false
 	EnableSuccess bool = false
 	EnableDebug   bool = false
 
+	// Internal state for file logging
 	logFile            *os.File
 	logMutex           sync.Mutex
 	logFilePath        string
-	MaxLogFileSize     int64 = 0
-	LogFileTrimPercent int   = 20
+	MaxLogFileSize     int64 = 0  // 0 means no rotation
+	LogFileTrimPercent int   = 20 // Default trim 20% when max size reached
 )
 
-// Сеттеры для уровней логирования (остаются без изменений)
+// SetEnableError enables or disables Error level logging.
 func SetEnableError(enable bool) {
 	EnableError = enable
 }
 
+// SetEnableWarning enables or disables Warning level logging.
 func SetEnableWarning(enable bool) {
 	EnableWarning = enable
 }
 
+// SetEnableInfo enables or disables Info level logging.
 func SetEnableInfo(enable bool) {
 	EnableInfo = enable
 }
 
+// SetEnableSuccess enables or disables Success level logging.
 func SetEnableSuccess(enable bool) {
 	EnableSuccess = enable
 }
 
+// SetEnableDebug enables or disables Debug level logging.
 func SetEnableDebug(enable bool) {
 	EnableDebug = enable
 }
 
+// SetEnableAll enables all log levels.
 func SetEnableAll() {
 	EnableError = true
 	EnableWarning = true
@@ -72,6 +85,7 @@ func SetEnableAll() {
 	EnableDebug = true
 }
 
+// SetDisableAll disables all log levels.
 func SetDisableAll() {
 	EnableError = false
 	EnableWarning = false
@@ -80,10 +94,15 @@ func SetDisableAll() {
 	EnableDebug = false
 }
 
+// SetMaxLogFileSize sets the maximum size of the log file in bytes.
+// When the file exceeds this size, it will be trimmed.
+// Set to 0 to disable rotation (default).
 func SetMaxLogFileSize(size int64) {
 	MaxLogFileSize = size
 }
 
+// SetLogFileTrimPercent sets the percentage of the file to remove when max size is reached.
+// Must be between 5 and 50. Default is 20.
 func SetLogFileTrimPercent(percent int) {
 	if percent < 5 {
 		percent = 5
@@ -94,7 +113,9 @@ func SetLogFileTrimPercent(percent int) {
 	LogFileTrimPercent = percent
 }
 
-// Функция для установки файла логирования
+// SetLogFile sets the log file path.
+// If filename is empty, logging to file is disabled.
+// Messages are written to both console and file.
 func SetLogFile(filename string) error {
 	if filename == "" {
 		if logFile != nil {
@@ -118,6 +139,9 @@ func SetLogFile(filename string) error {
 	return nil
 }
 
+// trimLogFile trims the log file when it exceeds MaxLogFileSize.
+// It removes LogFileTrimPercent from the beginning of the file,
+// ensuring to trim at line boundaries for readability.
 func trimLogFile() {
 	if logFile == nil || logFilePath == "" || MaxLogFileSize <= 0 {
 		return
@@ -135,6 +159,7 @@ func trimLogFile() {
 
 	trimSize := int64(float64(len(content)) * float64(LogFileTrimPercent) / 100.0)
 	if trimSize < int64(len(content))/2 {
+		// Find next newline to avoid cutting in middle of line
 		startIdx := trimSize
 		for startIdx < int64(len(content)) && content[startIdx] != '\n' {
 			startIdx++
@@ -150,7 +175,8 @@ func trimLogFile() {
 	}
 }
 
-// Вспомогательная функция для форматирования сообщения из ...any
+// formatMessage formats log message arguments.
+// If the message starts and ends with brackets, they are removed.
 func formatMessage(s ...any) string {
 	sStr := fmt.Sprint(s...)
 	if len(sStr) >= 2 && sStr[0] == '[' && sStr[len(sStr)-1] == ']' {
@@ -159,7 +185,8 @@ func formatMessage(s ...any) string {
 	return sStr
 }
 
-// Вспомогательная функция для логирования
+// loggerFunc writes the message to both console and file (if configured).
+// Thread-safe with mutex.
 func loggerFunc(consoleLine, fileLine string) {
 	logMutex.Lock()
 	defer logMutex.Unlock()
@@ -170,14 +197,14 @@ func loggerFunc(consoleLine, fileLine string) {
 	}
 }
 
-// Основные функции логирования
-
+// Err logs an error if it is not nil and Error level is enabled.
 func Err(e error) {
 	if e != nil && EnableError {
 		Error(e)
 	}
 }
 
+// Error logs a message at ERROR level (red color).
 func Error(s ...any) {
 	if !EnableError {
 		return
@@ -196,6 +223,7 @@ func Error(s ...any) {
 	loggerFunc(consoleLine, fileLine)
 }
 
+// Warning logs a message at WARNING level (yellow color).
 func Warning(s ...any) {
 	if !EnableWarning {
 		return
@@ -214,6 +242,7 @@ func Warning(s ...any) {
 	loggerFunc(consoleLine, fileLine)
 }
 
+// Info logs a message at INFO level (white color).
 func Info(s ...any) {
 	if !EnableInfo {
 		return
@@ -232,6 +261,7 @@ func Info(s ...any) {
 	loggerFunc(consoleLine, fileLine)
 }
 
+// Success logs a message at SUCCESS level (green color).
 func Success(s ...any) {
 	if !EnableSuccess {
 		return
@@ -250,6 +280,7 @@ func Success(s ...any) {
 	loggerFunc(consoleLine, fileLine)
 }
 
+// Debug logs a message at DEBUG level (blue color).
 func Debug(s ...any) {
 	if !EnableDebug {
 		return

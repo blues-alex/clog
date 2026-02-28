@@ -91,7 +91,7 @@ func main() {
 	}
 	fmt.Println()
 
-	for i := 0; i <= 100; i += 20 {
+	for i := 0; i <= 1000; i += 20 {
 		clog.WarningWrapper.Progress("Step ", i, "/5")
 		time.Sleep(50 * time.Millisecond)
 	}

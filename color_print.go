@@ -1,9 +1,16 @@
+// Package clog provides color Print wrappers.
+//
+// This file contains Print/Sprint/Printf functions for each color.
+// Each color (Red, HiRed, Yellow, HiYellow, Green, HiGreen, Blue, Cyan, White)
+// has 6 functions: Print, Printf, Println, Sprint, Sprintf, Sprintln.
+
 package clog
 
 import (
 	"fmt"
 )
 
+// PrintRed outputs arguments in red color.
 func PrintRed(a ...any) (n int, err error) {
 	return fmt.Print(Red(fmt.Sprint(a...)))
 }
