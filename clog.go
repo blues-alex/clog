@@ -14,15 +14,40 @@ import (
 // Color functions for console output.
 // Each function returns a colored string using ANSI escape codes.
 var (
-	Blue     = color.New(color.FgBlue).SprintfFunc()
-	Cyan     = color.New(color.FgCyan).SprintfFunc()
-	Green    = color.New(color.FgGreen).SprintfFunc()
-	HiGreen  = color.New(color.FgHiGreen).SprintfFunc()
-	Yellow   = color.New(color.FgYellow).SprintfFunc()
-	HiYellow = color.New(color.FgHiYellow).SprintfFunc()
-	Red      = color.New(color.FgRed).SprintfFunc()
-	HiRed    = color.New(color.FgHiRed).SprintfFunc()
-	White    = color.New(color.FgWhite).SprintfFunc()
+	Black     = color.New(color.FgBlack).SprintfFunc()
+	Blue      = color.New(color.FgBlue).SprintfFunc()
+	Cyan      = color.New(color.FgCyan).SprintfFunc()
+	Green     = color.New(color.FgGreen).SprintfFunc()
+	HiBlack   = color.New(color.FgHiBlack).SprintfFunc()
+	HiGreen   = color.New(color.FgHiGreen).SprintfFunc()
+	HiMagenta = color.New(color.FgHiMagenta).SprintfFunc()
+	HiRed     = color.New(color.FgHiRed).SprintfFunc()
+	HiWhite   = color.New(color.FgHiWhite).SprintfFunc()
+	HiYellow  = color.New(color.FgHiYellow).SprintfFunc()
+	Magenta   = color.New(color.FgMagenta).SprintfFunc()
+	Red       = color.New(color.FgRed).SprintfFunc()
+	White     = color.New(color.FgWhite).SprintfFunc()
+	Yellow    = color.New(color.FgYellow).SprintfFunc()
+
+	// Bold variants
+	BoldBlack   = color.New(color.FgBlack, color.Bold).SprintfFunc()
+	BoldBlue    = color.New(color.FgBlue, color.Bold).SprintfFunc()
+	BoldCyan    = color.New(color.FgCyan, color.Bold).SprintfFunc()
+	BoldGreen   = color.New(color.FgGreen, color.Bold).SprintfFunc()
+	BoldMagenta = color.New(color.FgMagenta, color.Bold).SprintfFunc()
+	BoldRed     = color.New(color.FgRed, color.Bold).SprintfFunc()
+	BoldWhite   = color.New(color.FgWhite, color.Bold).SprintfFunc()
+	BoldYellow  = color.New(color.FgYellow, color.Bold).SprintfFunc()
+
+	// Background colors
+	BgBlack   = color.New(color.BgBlack).SprintfFunc()
+	BgBlue    = color.New(color.BgBlue).SprintfFunc()
+	BgCyan    = color.New(color.BgCyan).SprintfFunc()
+	BgGreen   = color.New(color.BgGreen).SprintfFunc()
+	BgMagenta = color.New(color.BgMagenta).SprintfFunc()
+	BgRed     = color.New(color.BgRed).SprintfFunc()
+	BgWhite   = color.New(color.BgWhite).SprintfFunc()
+	BgYellow  = color.New(color.BgYellow).SprintfFunc()
 
 	// Re-export fmt functions for convenience
 	Errorf = fmt.Errorf

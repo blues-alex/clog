@@ -67,6 +67,21 @@ func main() {
 	clog.PrintWhite("This is white text\n")
 	clog.PrintlnWhite("This is white line")
 
+	clog.PrintBlack("This is black text\n")
+	clog.PrintlnBlack("This is black line")
+
+	clog.PrintMagenta("This is magenta text\n")
+	clog.PrintlnMagenta("This is magenta line")
+
+	clog.PrintHiBlack("This is hi-black (gray) text\n")
+	clog.PrintlnHiBlack("This is hi-black line")
+
+	clog.PrintHiWhite("This is hi-white text\n")
+	clog.PrintlnHiWhite("This is hi-white line")
+
+	clog.PrintHiMagenta("This is hi-magenta text\n")
+	clog.PrintlnHiMagenta("This is hi-magenta line")
+
 	clog.PrintfYellow("New Error: %#v\n", clog.Errorf("New error"))
 
 	fmt.Println("\n=== Color functions (sprint) ===")
