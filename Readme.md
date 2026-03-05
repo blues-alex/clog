@@ -10,7 +10,7 @@
 - Ротация логов по размеру с построчным обрезанием
 - Progress wrappers для прогресс-баров
 - Потокобезопасность (mutex)
-- 9 цветов: Red, HiRed, Yellow, HiYellow, Green, HiGreen, Blue, Cyan, White
+- 25+ цветов: базовые, Hi (яркие), Bold, Background
 
 ## Установка
 
@@ -93,7 +93,7 @@ clog.SetLogFile("app.log")
 ```go
 msg := clog.Red("текст")
 msg := clog.Green("текст")
-// и др.: HiRed, Yellow, HiYellow, HiGreen, Blue, Cyan, White
+// и др.: Black, HiBlack, Magenta, HiMagenta, Yellow, HiYellow, Green, HiGreen, Blue, Cyan, White, HiWhite
 ```
 
 ### Print-обёртки
@@ -120,7 +120,19 @@ msg := clog.SprintfRed("значение: %d", 42)
 msg := clog.SprintlnRed("текст")
 ```
 
-Цвета: `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
+### Доступные цвета
+
+**Базовые:**
+`Black`, `Red`, `Green`, `Yellow`, `Blue`, `Magenta`, `Cyan`, `White`
+
+**Яркие (Hi):**
+`HiBlack`, `HiRed`, `HiGreen`, `HiYellow`, `HiMagenta`, `HiWhite`
+
+**Bold:**
+`BoldBlack`, `BoldRed`, `BoldGreen`, `BoldYellow`, `BoldBlue`, `BoldMagenta`, `BoldCyan`, `BoldWhite`
+
+**Background:**
+`BgBlack`, `BgRed`, `BgGreen`, `BgYellow`, `BgBlue`, `BgMagenta`, `BgCyan`, `BgWhite`
 
 ## Progress (прогресс-бар)
 
@@ -188,7 +200,10 @@ go run ./examples/
 
 ### Цветовые функции
 
-- `Red`, `HiRed`, `Yellow`, `HiYellow`, `Green`, `HiGreen`, `Blue`, `Cyan`, `White`
+- Базовые: `Black`, `Red`, `Green`, `Yellow`, `Blue`, `Magenta`, `Cyan`, `White`
+- Яркие: `HiBlack`, `HiRed`, `HiGreen`, `HiYellow`, `HiMagenta`, `HiWhite`
+- Bold: `BoldBlack`, `BoldRed`, `BoldGreen`, `BoldYellow`, `BoldBlue`, `BoldMagenta`, `BoldCyan`, `BoldWhite`
+- Background: `BgBlack`, `BgRed`, `BgGreen`, `BgYellow`, `BgBlue`, `BgMagenta`, `BgCyan`, `BgWhite`
 
 ### Progress wrappers
 
